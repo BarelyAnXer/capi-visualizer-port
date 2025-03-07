@@ -168,6 +168,11 @@ func main() {
 	// srv.Handler is nil so it uses default serve mux, which http.Handle configures by default.
 
 	srv.ListenAndServe()
+
+}
+
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }
 
 type hookedResponseWriter struct {
@@ -249,6 +254,7 @@ func serveFileContents(ctx context.Context, file string, files http.FileSystem) 
 func handleManagementClusterTree(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := ctrl.LoggerFrom(ctx)
+	enableCors(&w)
 
 	log.V(2).Info("GET call to url", "url", r.URL.Path)
 
