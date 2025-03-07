@@ -20,7 +20,8 @@ interface TreeProps {
     linkStyle?: TreeLinkStyle;
     direction?: Direction;
     collapseEnabled?: boolean;
-    dataset: d3.HierarchyNode<RawTreeNode>[];
+    // dataset: d3.HierarchyNode<RawTreeNode>[];
+    dataset: RawTreeNode
 }
 
 const DEFAULT_CONFIG: Config = {
@@ -43,7 +44,7 @@ const ReactTree: React.FC<TreeProps> = ({
     linkStyle = TreeLinkStyle.CURVE,
     direction = Direction.VERTICAL,
     collapseEnabled = true,
-    // dataset,
+    dataset,
 }) => {
     const [colors] = useState<string>("568FE1");
     const [nodeDataList, setNodeDataList] = useState<D3TreeNode[]>([]);
@@ -55,7 +56,7 @@ const ReactTree: React.FC<TreeProps> = ({
 
     // D3.js instance (assuming you need it)
     const [d3Instance] = useState<typeof d3>(d3);
-    const [DIRECTION] = useState<typeof Direction>(Direction);
+    // const [DIRECTION] = useState<typeof Direction>(Direction);
 
 
     const initialTransformStyle = useMemo(() => {
@@ -126,31 +127,32 @@ const ReactTree: React.FC<TreeProps> = ({
         // guard if not yet loaded get back to here
         // if (!dataset || !svgRef.current) return;
 
-        let dataset2: RawTreeNode = {
-            name: "Root",
-            children: [
-                {
-                    name: "Child 1",
-                    children: [{ name: "Grandchild 1" }, { name: "Grandchild 2" }],
-                },
-                {
-                    name: "Child 2",
-                },
-            ],
-        };
-        let dataset3: D3TreeNode = d3.hierarchy(dataset2);
-        let [nodeDataList, linkDataList] = buildTree(dataset3, config);
-        setNodeDataList(nodeDataList)
-        setLinkDataList(linkDataList)
-        console.log(linkDataList, 'whats')
-        console.log(nodeDataList, "up")
+        // let dataset: RawTreeNode = {
+        //     name: "Root",
+        //     children: [
+        //         {
+        //             name: "Child 1",
+        //             children: [{ name: "Grandchild 1" }, { name: "Grandchild 2" }],
+        //         },
+        //         {
+        //             name: "Child 2",
+        //         },
+        //     ],
+        // };
+
+        let [nodeDataList, linkDataList] = buildTree(d3.hierarchy(dataset), config);
         nodeDataList = nodeDataList.splice(0, 1)
         linkDataList = linkDataList.filter(
             (x) => x.source.data.name !== "__invisible_root"
         );
+        setNodeDataList(nodeDataList)
+        setLinkDataList(linkDataList)
 
-        const identifier = dataset2["identifier"];
-        const specialLinks = dataset2["links"];
+        console.log(linkDataList, 'whats')
+        console.log(nodeDataList, "up")
+
+        const identifier = dataset["identifier"];
+        const specialLinks = dataset["links"];
 
         if (specialLinks && identifier) {
             console.log(specialLinks, identifier, "test1")
@@ -200,7 +202,7 @@ const ReactTree: React.FC<TreeProps> = ({
 
         console.log(links, "is ther ea data ")
 
-    
+
 
         // give this a proper type
         links
@@ -228,19 +230,19 @@ const ReactTree: React.FC<TreeProps> = ({
         //     .attr("d", function (this: SVGPathElement, d: unknown, i: number): string {
         //         return generateLinkPath(d as any);
         //     })
-        links
-            .exit()
-            .transition()
-            .duration(ANIMATION_DURATION / 2)
-            .ease(d3.easeCubicInOut)
-            .style("opacity", 1)
-            .style("stroke", (d, i) => "")
-            .style("stroke-width", (d, i) => "")
-            .style("stroke-dashoffset", (d, i) => "")
-            .style("stroke-dasharray", (d, i) => "")
-            .style("stroke-linecap", (d, i) => "")
-            .style("opacity", 0)
-            .remove();
+        // links
+        //     .exit()
+        //     .transition()
+        //     .duration(ANIMATION_DURATION / 2)
+        //     .ease(d3.easeCubicInOut)
+        //     .style("opacity", 1)
+        //     .style("stroke", (d, i) => "")
+        //     .style("stroke-width", (d, i) => "")
+        //     .style("stroke-dashoffset", (d, i) => "")
+        //     .style("stroke-dasharray", (d, i) => "")
+        //     .style("stroke-linecap", (d, i) => "")
+        //     .style("opacity", 0)
+        //     .remove();
 
 
 
@@ -268,11 +270,10 @@ const ReactTree: React.FC<TreeProps> = ({
 
 
     function isVertical(): boolean {
-        return direction === DIRECTION.VERTICAL;
+        return direction === Direction.VERTICAL;
     }
 
     const generateLinkPath = (d: LinkDatum): any => {
-        // const self = this;
         if (linkStyle === TreeLinkStyle.CURVE) {
             const linkPath = isVertical() ? d3.linkVertical<LinkDatum, NodeDatum>() : d3.linkHorizontal<LinkDatum, NodeDatum>();
 
@@ -288,10 +289,7 @@ const ReactTree: React.FC<TreeProps> = ({
                         x: d.source.x,
                         y: d.source.y,
                     };
-
-                    // return sourcePoint // temp
-
-                    return direction === DIRECTION.VERTICAL
+                    return direction === Direction.VERTICAL
                         ? sourcePoint
                         : rotatePoint(sourcePoint);
                 })
@@ -300,9 +298,7 @@ const ReactTree: React.FC<TreeProps> = ({
                         x: d.target.x,
                         y: d.target.y,
                     };
-
-                    // return targetPoint // temp
-                    return direction === DIRECTION.VERTICAL
+                    return direction === Direction.VERTICAL
                         ? targetPoint
                         : rotatePoint(targetPoint);
                 });
@@ -425,13 +421,7 @@ const ReactTree: React.FC<TreeProps> = ({
 
 
     return (
-        <>
-            <svg className="svg vue-tree" ref={svgRef} style={initialTransformStyle}></svg>;
-        </>
-        // <div ref={containerRef} style={{ width: "100vh", height: "100%" }}>
-
-        // </div>
-
+        <svg className="svg vue-tree" ref={svgRef} style={initialTransformStyle}></svg>
     );
 }
 export default ReactTree;

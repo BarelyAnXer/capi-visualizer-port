@@ -31,7 +31,7 @@ function App() {
     axios
       .get("http://localhost:8081/api/v1/management-cluster/")
       .then((response) => {
-        console.log(response.data)
+        console.log(response.data, "1")
         setData(response.data)
       })
       .catch((err) => setError(err.message))
@@ -52,11 +52,11 @@ function App() {
         <h2>Tree Chart Example</h2>
         <h2>Tree Chart Example</h2>
         <ReactTree
-          // dataset={dataset3}
-          dataset={[]}
+          dataset={data}
+          // dataset={[]}
           config={{ nodeWidth: 100, nodeHeight: 150, levelHeight: 200 }}
           linkStyle={TreeLinkStyle.STRAIGHT}
-          direction={Direction.HORIZONTAL}
+          direction={Direction.VERTICAL}
           collapseEnabled={false}
         />
 

@@ -21,7 +21,7 @@ export function deepCopy(node: any) {
     let obj: Record<string, any> = { _key: uuid() };
     for (var key in node) {
         if (node[key] === null) {
-            obj[key] = null;
+            obj[key]  = null;
         } else if (Array.isArray(node[key])) {
             obj[key] = node[key].map((x: any) => deepCopy(x));
         } else if (typeof node[key] === "object") {
