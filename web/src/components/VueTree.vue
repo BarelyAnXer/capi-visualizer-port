@@ -18,6 +18,7 @@
         name="tree-node-item"
         tag="div"
       >
+      <!-- no need to convert transition group for -->
         <div
           class="node-slot"
           v-for="(node, index) of nodeDataList"
@@ -40,7 +41,8 @@
             v-bind:index="index"
             v-bind:collapseNode="collapseNode"
           >
-            <!-- 默认展示value字段 -->
+            默认展示value字段
+            <span>qerty</span>
             <span>{{ node.data.value }}</span>
           </slot>
         </div>
@@ -339,19 +341,25 @@ export default {
     },
     // 使用扇形数据开始绘图
     draw() {
+      console.log(this._dataset, "popo")
       var [nodeDataList, linkDataList] = this.buildTree(this._dataset);
       // Do not render the invisible root node.
+      console.log(linkDataList, "marie")
       nodeDataList.splice(0, 1);
       linkDataList = linkDataList.filter(
         (x) => x.source.data.name !== "__invisible_root"
       );
       this.linkDataList = linkDataList;
       this.nodeDataList = nodeDataList;
+      console.log(this.dataset["indentifier"], "elliot")
+      console.log(this.dataset["links"], "elliot")
       const identifier = this.dataset["identifier"];
       const specialLinks = this.dataset["links"];
 
       if (specialLinks && identifier) {
+        console.log(specialLinks, identifier, "test1")
         for (const link of specialLinks) {
+          console.log(link, "test2") 
           let parent,
             children = undefined;
           if (identifier === "value") {
@@ -369,6 +377,8 @@ export default {
               return d["data"][identifier] == link.child;
             });
           }
+          console.log(parent, children, "test3")
+
           if (parent && children) {
             for (const child of children) {
               const new_link = Object.assign(
@@ -381,6 +391,8 @@ export default {
               this.linkDataList.push(new_link);
             }
           }
+
+          console.log(linkDataList, "asdh")
         }
       }
 
@@ -390,6 +402,8 @@ export default {
       const links = this.svg.selectAll(".link").data(linkDataList, (d) => {
         return `${d.source.data._key}-${d.target.data._key}`;
       });
+
+      console.log(links, "ernest")
 
       links
         .enter()
@@ -439,6 +453,16 @@ export default {
           return a.parent == b.parent ? 1 : 1 + 1 / (a.depth + 1);
         });
       const tree = treeBuilder(this.d3.hierarchy(rootNode));
+
+      // console.log("shaira")
+      //     console.log(tree.links(), "stupid")
+      //     // console.log(Object.keys(tree.links()), "zye")
+      //     // for(let temp in rootNode){
+      //     //   console.log(temp, "")
+      //     //   console.log(rootNode[temp], "value")
+      //     // }
+      //     console.log("mewe")
+
       return [tree.descendants(), tree.links()];
     },
     enableDrag() {

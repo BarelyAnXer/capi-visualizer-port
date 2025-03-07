@@ -190,11 +190,13 @@ const ReactTree: React.FC<TreeProps> = ({
                     }
                 }
 
-                console.log(linkDataList, "asdh")
+                console.log(linkDataList, "asdQOah")
+
             }
         }
 
         const svg = d3.select(svgRef.current);
+        const dom = d3.select(domRef.current);
 
         const links = svg.selectAll(".link").data(linkDataList as any, (d: any) => {
             return `${d.source.data.name}-${d.target.data.name}`
@@ -219,8 +221,8 @@ const ReactTree: React.FC<TreeProps> = ({
             .style("stroke-dasharray", (d: any, i) => d["stroke-dasharray"])
             .style("stroke-linecap", (d: any, i) => d["stroke-linecap"])
             .attr("class", "link")
-            .attr("d", function (this: SVGPathElement, d: unknown, i: number): string {
-                return generateLinkPath(d as any);
+            .attr("d", (d, i: number): string => {
+                return generateLinkPath(d as LinkDatum);
             })
 
         // links
@@ -331,97 +333,23 @@ const ReactTree: React.FC<TreeProps> = ({
     }
 
     const svgRef = useRef<SVGSVGElement>(null)
+    const domRef = useRef<HTMLDivElement>(null)
 
 
 
-    // interface TreeNode {
-    //     name: string;
-    //     children?: TreeNode[];
-    // }
+   
 
-
-    // useEffect(() => {
-    //     if (!svgRef.current) return;
-
-    //     const data: TreeNode = {
-    //         name: "Root",
-    //         children: [
-    //             { name: "Child 1" },
-    //             {
-    //                 name: "Child 2",
-    //                 // children: [{ name: "Grandchild 1" }, { name: "Grandchild 2" }]
-    //             },
-    //         ],
-    //     };
-
-
-
-    //     const width = 700;
-    //     const height = 400;
-
-    //     console.log(svgRef)
-
-    //     const svg = d3.select(svgRef.current)
-    //         .attr("width", width)
-    //         .attr("height", height)
-    //         .append("g")
-    //         .style("stroke", (d) => {
-    //             // console.log(d, "asd")
-    //             // return "black"
-    //             return 1
-    //         })
-    //         .attr("transform", "translate(100,100)");
-
-
-    //     const root: d3.HierarchyNode<TreeNode> = d3.hierarchy(data);
-
-    //     const treeLayout = d3.tree<TreeNode>().size([width - 100, height - 100]).nodeSize([150, 100])
-    //         .separation((a, b) => (a.parent === b.parent ? 1 : 1 + 1 / (a.depth + 1)));
-
-    //     // console.log(treeLayout, "??")
-
-    //     const tree = treeLayout(d3.hierarchy<TreeNode>(root))
-    //     // const tree = treeLayout(root)
-
-    //     console.log(tree, "huh")
-
-    //     console.log(tree.descendants(), "as")
-    //     console.log(tree.links(), "hey")
-
-    //     const nodeList = tree.descendants()
-    //     let linkList = tree.links()
-
-    //     nodeList.splice(0, 1);
-    //     linkList = linkList.filter(
-    //         (x) => x.source.data.name !== "__invisible_root"
-    //     );
-
-    //     // const linkGenerator = d3.linkVertical<any, any>()
-    //     //     .x((d) => d.x)
-    //     //     .y((d) => d.y);
-
-
-    //     svg.selectAll(".link")
-    //         .data(root.links())
-    //         .enter()
-    //         .append("path")
-    //         // .attr("d", (d) => linkGenerator(d)!)
-    //         .attr("fill", "none")
-    //         .attr("stroke", "black");
-
-    //     svg.selectAll(".node")
-    //         .data(root.descendants())
-    //         .enter()
-    //         .append("circle")
-    //         .attr("cx", (d: any) => d.x)
-    //         .attr("cy", (d: any) => d.y)
-    //         .attr("r", 5)
-    //         .attr("fill", "blue");
-    // }, []);
 
 
     return (
-        <svg className="svg vue-tree" ref={svgRef} style={initialTransformStyle}></svg>
+        <>
+            <svg className="svg vue-tree" ref={svgRef} style={initialTransformStyle}></svg>
+            <div className="dom-container" ref={domRef} style={initialTransformStyle}>
+                <div className="node-slot">
+                    {/* slot?? here */}
+                </div>
+            </div>
+        </>
     );
 }
 export default ReactTree;

@@ -12,7 +12,7 @@
     >
       <template v-slot:node="{ node }">
         <v-hover>
-
+            
             <template v-slot:default="{ hover }">
               <div style="padding-left: 10px; padding-right: 10px;">
               <!-- :to="{ path: 'clusters', params: { name: node.name, namespace: node.namespace }}" -->

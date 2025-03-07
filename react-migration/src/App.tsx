@@ -53,12 +53,17 @@ function App() {
         <h2>Tree Chart Example</h2>
         <ReactTree
           dataset={data}
-          // dataset={[]}
           config={{ nodeWidth: 100, nodeHeight: 150, levelHeight: 200 }}
           linkStyle={TreeLinkStyle.STRAIGHT}
           direction={Direction.VERTICAL}
           collapseEnabled={false}
         />
+
+        <h2>Tree Chart Example</h2>
+        <h2>Tree Chart Example</h2>
+
+        <h2>Tree Chart Example</h2>
+        <h2>Tree Chart Example</h2>
 
       </div>
     </>
