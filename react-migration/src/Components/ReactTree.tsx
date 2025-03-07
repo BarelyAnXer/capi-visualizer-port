@@ -3,6 +3,7 @@ import * as d3 from "d3";
 import { HierarchyPointLink, HierarchyPointNode, ValueFn } from "d3";
 import { Config, Direction, LinkDatum, NodeDatum, TreeLinkStyle } from "./types";
 import { rotatePoint } from "./utils";
+import "../styles.css"
 
 const ANIMATION_DURATION = 800;
 
@@ -50,7 +51,7 @@ const ReactTree: React.FC<TreeProps> = ({
     // const svgRef = useRef<SVGSVGElement | null>(null);
     const [initTransformX, setInitTransformX] = useState<number>(0);
     const [initTransformY, setInitTransformY] = useState<number>(0);
-    const [currentScale, setCurrentScale] = useState<number>(1);
+    // const [currentScale, setCurrentScale] = useState<number>(1);
 
     // D3.js instance (assuming you need it)
     const [d3Instance] = useState<typeof d3>(d3);
@@ -59,10 +60,10 @@ const ReactTree: React.FC<TreeProps> = ({
 
     const initialTransformStyle = useMemo(() => {
         return {
-            transform: `scale(${currentScale}) translate(${initTransformX}px, ${initTransformY}px)`,
+            transform: `scale(1) translate(${initTransformX}px, ${initTransformY}px)`,
             transformOrigin: "center",
         };
-    }, [initTransformX, initTransformY, currentScale]);
+    }, [initTransformX, initTransformY]);
 
 
 
@@ -139,22 +140,14 @@ const ReactTree: React.FC<TreeProps> = ({
         };
         let dataset3: D3TreeNode = d3.hierarchy(dataset2);
         let [nodeDataList, linkDataList] = buildTree(dataset3, config);
-        // setNodeDataList(nodeDataList)
-        // setLinkDataList(linkDataList)
+        setNodeDataList(nodeDataList)
+        setLinkDataList(linkDataList)
         console.log(linkDataList, 'whats')
         console.log(nodeDataList, "up")
         nodeDataList = nodeDataList.splice(0, 1)
         linkDataList = linkDataList.filter(
             (x) => x.source.data.name !== "__invisible_root"
         );
-
-        const svg = d3.select(svgRef.current);
-
-        const links = svg.selectAll(".link").data(linkDataList as any, (d: any) => {
-            return `${d.source.data.name}-${d.target.data.name}`
-        })
-
-        console.log(links, "is ther ea data ")
 
         const identifier = dataset2["identifier"];
         const specialLinks = dataset2["links"];
@@ -199,6 +192,15 @@ const ReactTree: React.FC<TreeProps> = ({
             }
         }
 
+        const svg = d3.select(svgRef.current);
+
+        const links = svg.selectAll(".link").data(linkDataList as any, (d: any) => {
+            return `${d.source.data.name}-${d.target.data.name}`
+        })
+
+        console.log(links, "is ther ea data ")
+
+    
 
         // give this a proper type
         links
@@ -423,14 +425,13 @@ const ReactTree: React.FC<TreeProps> = ({
 
 
     return (
-        <div>
-            <div ref={containerRef} style={{ width: "100%", height: "100%" }}>
-                {/* My Component */}
-                <svg ref={svgRef}></svg>;
-                <div></div>
-            </div>
-           
-        </div>
+        <>
+            <svg className="svg vue-tree" ref={svgRef} style={initialTransformStyle}></svg>;
+        </>
+        // <div ref={containerRef} style={{ width: "100vh", height: "100%" }}>
+
+        // </div>
+
     );
 }
 export default ReactTree;
