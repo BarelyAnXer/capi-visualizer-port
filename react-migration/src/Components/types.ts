@@ -28,16 +28,17 @@ export interface LinkDatum {
     target: NodeDatum;
 }
 
-
-// 
-
 export interface RawTreeNode {
     name?: string;
     children?: RawTreeNode[] | null; // Should store raw children before converting to d3 hierarchy
     collapsed?: boolean;
     collapsible?: boolean;
+    x?: number | string,
+    y?: number | string
     [key: string]: any; // Allows extra properties
 }
+
+
 
 export type D3TreeNode = d3.HierarchyNode<RawTreeNode>
 

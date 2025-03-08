@@ -1,19 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as d3 from "d3";
 import { HierarchyPointLink, HierarchyPointNode, ValueFn } from "d3";
-import { Config, Direction, LinkDatum, NodeDatum, TreeLinkStyle } from "./types";
-import { rotatePoint } from "./utils";
+import { Config, Direction, LinkDatum, NodeDatum, TreeLinkStyle, RawTreeNode } from "./types";
+import { rotatePoint, formatDimension } from "./utils";
 import "../styles.css"
 
 const ANIMATION_DURATION = 800;
 
-interface RawTreeNode {
-    name?: string;
-    children?: RawTreeNode[] | null; // Should store raw children before converting to d3 hierarchy
-    collapsed?: boolean;
-    collapsible?: boolean;
-    [key: string]: any; // Allows extra properties
-}
 
 interface TreeProps {
     config?: Config;
@@ -31,9 +24,11 @@ const DEFAULT_CONFIG: Config = {
 };
 
 
-
 // `HierarchyNode<RawTreeNode>` is the D3-wrapped version of the data
 type D3TreeNode = d3.HierarchyNode<RawTreeNode>
+
+// Heirarchy node takes generics for (RawTreeNode) -> this becaomes the Datam??
+// so when there are things that returns this we use datam Type which is the generic we passed?
 
 
 const DEFAULT_HEIGHT_DECREMENT = 100;
@@ -148,8 +143,8 @@ const ReactTree: React.FC<TreeProps> = ({
         setNodeDataList(nodeDataList)
         setLinkDataList(linkDataList)
 
-        console.log(linkDataList, 'whats')
         console.log(nodeDataList, "up")
+        console.log(linkDataList, 'whats')
 
         const identifier = dataset["identifier"];
         const specialLinks = dataset["links"];
@@ -259,6 +254,7 @@ const ReactTree: React.FC<TreeProps> = ({
 
         const tree = treeBuilder(d3.hierarchy<RawTreeNode>(rootNode));
 
+
         return [tree.descendants(), tree.links()];
     };
 
@@ -337,17 +333,50 @@ const ReactTree: React.FC<TreeProps> = ({
 
 
 
-   
 
+    type Props = {
+        nodeDataList: D3TreeNode[]
+        direction: Direction
+        children: React.ReactNode;
+    }; 
+
+    const NodeSlots: React.FC<Props> = ({ nodeDataList, direction, children }) => {
+        return (
+            <>
+                {nodeDataList.map((node: D3TreeNode, index: number) => (
+                    <div
+                        className="node-slot"
+                        key={node.data._key}
+                        style={{
+                            left: formatDimension(
+                                direction === Direction.VERTICAL ? node.y as number | string : node.x as number | string
+                            ),
+                            top: formatDimension(
+                                direction === Direction.VERTICAL ? node.y as number | string : node.x as number | string
+                            ),
+                            width: formatDimension(config.nodeWidth),
+                            height: formatDimension(config.nodeHeight)
+                        }}
+                    >
+                        {/* children here */}
+                        {children}
+                    </div>
+                ))}
+            </>
+        );
+    };
 
 
     return (
         <>
             <svg className="svg vue-tree" ref={svgRef} style={initialTransformStyle}></svg>
             <div className="dom-container" ref={domRef} style={initialTransformStyle}>
-                <div className="node-slot">
-                    {/* slot?? here */}
-                </div>
+                <NodeSlots
+                    nodeDataList={nodeDataList}
+                    direction={Direction.VERTICAL}
+                >
+                    <p>asdas</p>
+                </NodeSlots>
             </div>
         </>
     );
