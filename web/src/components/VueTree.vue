@@ -42,7 +42,6 @@
             v-bind:collapseNode="collapseNode"
           >
             默认展示value字段
-            <span>qerty</span>
             <span>{{ node.data.value }}</span>
           </slot>
         </div>
@@ -224,6 +223,7 @@ export default {
      * Returns updated dataset by deep copying every nodes from the externalData and adding unique '_key' attributes.
      **/
     updatedInternalData(externalData) {
+      console.log(externalData, "external data")
       var data = { name: "__invisible_root", children: [] };
       // console.log("External data: ", externalData);
       if (!externalData) return data;
@@ -236,6 +236,7 @@ export default {
         data.children.push(this.deepCopy(externalData));
         // console.log("Normal child", data.children);
       }
+      console.log(data, "data")
       // console.log("Data is ", data);
       return data;
     },
@@ -344,11 +345,16 @@ export default {
       console.log(this._dataset, "popo")
       var [nodeDataList, linkDataList] = this.buildTree(this._dataset);
       // Do not render the invisible root node.
-      console.log(linkDataList, "marie")
+      console.log([...nodeDataList], "marie here")
+      console.log(nodeDataList, "here")
+      console.log(linkDataList, "marie2")
       nodeDataList.splice(0, 1);
       linkDataList = linkDataList.filter(
         (x) => x.source.data.name !== "__invisible_root"
       );
+
+      console.log([...nodeDataList], "mariz1")
+      console.log(linkDataList, "mariz1") 
       this.linkDataList = linkDataList;
       this.nodeDataList = nodeDataList;
       console.log(this.dataset["indentifier"], "elliot")

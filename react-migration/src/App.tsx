@@ -44,13 +44,13 @@ function App() {
 
   return (
     <>
-      <div className="tree-container">
+      <div className="treeContainer" id="overviewTree">
+        {/* <h2>Tree Chart Example</h2>
         <h2>Tree Chart Example</h2>
         <h2>Tree Chart Example</h2>
         <h2>Tree Chart Example</h2>
         <h2>Tree Chart Example</h2>
-        <h2>Tree Chart Example</h2>
-        <h2>Tree Chart Example</h2>
+        <h2>Tree Chart Example</h2> */}
         <ReactTree
           dataset={data}
           config={{ nodeWidth: 100, nodeHeight: 150, levelHeight: 200 }}
@@ -58,12 +58,6 @@ function App() {
           direction={Direction.VERTICAL}
           collapseEnabled={false}
         />
-
-        <h2>Tree Chart Example</h2>
-        <h2>Tree Chart Example</h2>
-
-        <h2>Tree Chart Example</h2>
-        <h2>Tree Chart Example</h2>
 
       </div>
     </>

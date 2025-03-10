@@ -11,9 +11,9 @@
       v-if="treeIsReady"
     >
       <template v-slot:node="{ node }">
-        <v-hover>
+        <!-- <v-hover>
             
-            <template v-slot:default="{ hover }">
+            <template v-slot:default="{ hover }"> -->
               <div style="padding-left: 10px; padding-right: 10px;">
               <!-- :to="{ path: 'clusters', params: { name: node.name, namespace: node.namespace }}" -->
               <v-card
@@ -72,9 +72,9 @@
 
               </v-card>
               </div>
-            </template>
+            <!-- </template>
 
-        </v-hover>
+        </v-hover> -->
       </template>
     </vue-tree>
     <div

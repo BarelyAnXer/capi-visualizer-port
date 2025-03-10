@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as d3 from "d3";
 import { HierarchyPointLink, HierarchyPointNode, ValueFn } from "d3";
-import { Config, Direction, LinkDatum, NodeDatum, TreeLinkStyle, RawTreeNode } from "./types";
-import { rotatePoint, formatDimension } from "./utils";
+import { Config, Direction, LinkDatum, NodeDatum, TreeLinkStyle, RawTreeNode, } from "./types";
+import { rotatePoint, formatDimension, deepCopy } from "./utils";
 import "../styles.css"
 
 const ANIMATION_DURATION = 800;
@@ -48,6 +48,7 @@ const ReactTree: React.FC<TreeProps> = ({
     const [initTransformX, setInitTransformX] = useState<number>(0);
     const [initTransformY, setInitTransformY] = useState<number>(0);
     // const [currentScale, setCurrentScale] = useState<number>(1);
+    const [stateDataset, setStateDataset] = useState(dataset)
 
     // D3.js instance (assuming you need it)
     const [d3Instance] = useState<typeof d3>(d3);
@@ -70,10 +71,10 @@ const ReactTree: React.FC<TreeProps> = ({
     // const svgRef = useRef(null);
     // get back here
 
-    const containerRef = useRef<HTMLDivElement | null>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const initTransform = () => {
-        if (!containerRef.current) return;
-
+        // if (!containerRef.current) return;
+        console.log("porky", containerRef.current)
         const containerWidth = containerRef.current.offsetWidth;
         const containerHeight = containerRef.current.offsetHeight;
         if (isVertical()) {
@@ -85,66 +86,42 @@ const ReactTree: React.FC<TreeProps> = ({
         }
     }
 
-    useEffect(() => {
-        initTransform()
-    }, [])
+   
+    const updatedInternalData = (externalData: any): RawTreeNode => {
+        
+        let data: RawTreeNode = { name: "__invisible_root", children: [] };
+        if (!externalData) return data;
 
+        if (Array.isArray(externalData)) {
+            for (let i = externalData.length - 1; i >= 0; i--) {
+                data.children.push(deepCopy(externalData[i]));
+            }
+        } else {
+            data.children.push(deepCopy(externalData));
+        }
+        return data;
+    };
 
-    // const updatedInternalData = (externalData: RawTreeNode | RawTreeNode[] | null): RawTreeNode => {
-    //     const rootNode: RawTreeNode = { name: "__invisible_root", children: [] };
-
-    //     if (!externalData) return rootNode;
-
-    //     if (Array.isArray(externalData)) {
-    //         rootNode.children = externalData.map(deepCopy);
-    //     } else {
-    //         rootNode.children = [deepCopy(externalData)];
-    //     }
-
-    //     return rootNode;
-    // };
-
-    // const convertToD3Hierarchy = (data: RawTreeNode): D3TreeNode => {
-    //     return d3.hierarchy(data);
-    // };
-
-    // const _dataset = useMemo(() => {
-    //     const processedData = updatedInternalData(dataset);
-    //     return convertToD3Hierarchy(processedData); // Returns a D3 HierarchyNode
-    // }, [dataset]);
-
+    const _dataset = useMemo(() => updatedInternalData(dataset), [dataset]);
 
 
     // -------
 
 
     const draw = useCallback(() => {
-        // guard if not yet loaded get back to here
-        // if (!dataset || !svgRef.current) return;
+        if (!dataset || !svgRef.current) return;
+      
+        console.log(dataset, "as")
+        let [localNodeDataList, localLinkDataList] = buildTree(_dataset, config);
 
-        // let dataset: RawTreeNode = {
-        //     name: "Root",
-        //     children: [
-        //         {
-        //             name: "Child 1",
-        //             children: [{ name: "Grandchild 1" }, { name: "Grandchild 2" }],
-        //         },
-        //         {
-        //             name: "Child 2",
-        //         },
-        //     ],
-        // };
 
-        let [nodeDataList, linkDataList] = buildTree(d3.hierarchy(dataset), config);
-        nodeDataList = nodeDataList.splice(0, 1)
-        linkDataList = linkDataList.filter(
+        localNodeDataList.splice(0, 1)
+        localLinkDataList = localLinkDataList.filter(
             (x) => x.source.data.name !== "__invisible_root"
         );
-        setNodeDataList(nodeDataList)
-        setLinkDataList(linkDataList)
 
-        console.log(nodeDataList, "up")
-        console.log(linkDataList, 'whats')
+        setNodeDataList(localNodeDataList)
+        setLinkDataList(localLinkDataList)
 
         const identifier = dataset["identifier"];
         const specialLinks = dataset["links"];
@@ -199,8 +176,6 @@ const ReactTree: React.FC<TreeProps> = ({
 
         console.log(links, "is ther ea data ")
 
-
-
         // give this a proper type
         links
             .enter()
@@ -224,9 +199,9 @@ const ReactTree: React.FC<TreeProps> = ({
         //     .transition()
         //     .duration(ANIMATION_DURATION)
         //     .ease(d3.easeCubicInOut)
-        //     .attr("d", function (this: SVGPathElement, d: unknown, i: number): string {
-        //         return generateLinkPath(d as any);
-        //     })
+        //     .attr("d", (d, i: number): string => {
+        //         return generateLinkPath(d as LinkDatum);
+            // })
         // links
         //     .exit()
         //     .transition()
@@ -239,14 +214,11 @@ const ReactTree: React.FC<TreeProps> = ({
         //     .style("stroke-dasharray", (d, i) => "")
         //     .style("stroke-linecap", (d, i) => "")
         //     .style("opacity", 0)
-        //     .remove();
-
-
-
+            .remove();
     }, []);
 
     // Function to build the D3 tree layout
-    const buildTree = (rootNode: d3.HierarchyNode<RawTreeNode>, config: Config): [d3.HierarchyPointNode<RawTreeNode>[], d3.HierarchyPointLink<RawTreeNode>[]] => {
+    const buildTree = (rootNode: RawTreeNode, config: Config): [d3.HierarchyPointNode<RawTreeNode>[], d3.HierarchyPointLink<RawTreeNode>[]] => {
         const treeBuilder = d3
             .tree<RawTreeNode>()
             .nodeSize([config.nodeWidth, config.levelHeight])
@@ -260,9 +232,9 @@ const ReactTree: React.FC<TreeProps> = ({
 
 
 
-    // get back here 
     useEffect(() => {
         draw();
+        initTransform();
     }, [draw]);
 
 
@@ -334,13 +306,33 @@ const ReactTree: React.FC<TreeProps> = ({
 
 
 
+    type SlotProps = {
+        node: any;
+        collapsed: boolean;
+        index: number;
+        children?: React.ReactNode;
+    };
+
+    const Slot: React.FC<SlotProps> = ({ node, collapsed, index, children }) => {
+        return (
+            <div>
+                {children || (
+                    <>
+                        <span>{node.value}</span>
+                    </>
+                )}
+            </div>
+        );
+    };
+
+
+
     type Props = {
         nodeDataList: D3TreeNode[]
         direction: Direction
-        children: React.ReactNode;
-    }; 
+    };
 
-    const NodeSlots: React.FC<Props> = ({ nodeDataList, direction, children }) => {
+    const NodeSlots: React.FC<Props> = ({ nodeDataList, direction }) => {
         return (
             <>
                 {nodeDataList.map((node: D3TreeNode, index: number) => (
@@ -358,8 +350,9 @@ const ReactTree: React.FC<TreeProps> = ({
                             height: formatDimension(config.nodeHeight)
                         }}
                     >
-                        {/* children here */}
-                        {children}
+                        <div className="tempContainer">
+
+                        </div>
                     </div>
                 ))}
             </>
@@ -367,17 +360,21 @@ const ReactTree: React.FC<TreeProps> = ({
     };
 
 
+
     return (
         <>
-            <svg className="svg vue-tree" ref={svgRef} style={initialTransformStyle}></svg>
-            <div className="dom-container" ref={domRef} style={initialTransformStyle}>
-                <NodeSlots
-                    nodeDataList={nodeDataList}
-                    direction={Direction.VERTICAL}
-                >
-                    <p>asdas</p>
-                </NodeSlots>
+            <div className="tree-container" ref={containerRef}>
+                <svg className="svg vue-tree" ref={svgRef} style={initialTransformStyle}></svg>
+                <div className="dom-container" ref={domRef} style={initialTransformStyle}>
+                    <NodeSlots
+                        nodeDataList={nodeDataList}
+                        direction={Direction.VERTICAL}
+                    >
+
+                    </NodeSlots>
+                </div>
             </div>
+
         </>
     );
 }
