@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Build the web app.
-FROM node:20 as web-builder
+FROM node:23 as web-builder
 
 WORKDIR /app
 COPY ./web /app
